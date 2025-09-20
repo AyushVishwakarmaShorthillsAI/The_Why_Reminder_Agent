@@ -82,7 +82,7 @@ def Info_Collector(name: str, the_why: str, tool_context: ToolContext):
 - After you change something (especially nested types: list/dict), ALWAYS mirror the final value into `tool_context.actions.state_delta["key"]` for persistence.
 - For scalars (str/int/bool), also set `state_delta["key"] = new_value` to persist.
 
-#### Two persistence paths (important)
+## Two persistence paths (important)
 There are two valid ways to persist state changes, used in different places:
 
 - Inside tools (preferred for tool-side writes): set `tool_context.actions.state_delta["key"] = value`. This is atomic within the tool execution and is how ADK expects tools to persist changes.
