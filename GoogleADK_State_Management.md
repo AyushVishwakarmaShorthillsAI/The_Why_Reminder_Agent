@@ -82,6 +82,14 @@ def Info_Collector(name: str, the_why: str, tool_context: ToolContext):
 - After you change something (especially nested types: list/dict), ALWAYS mirror the final value into `tool_context.actions.state_delta["key"]` for persistence.
 - For scalars (str/int/bool), also set `state_delta["key"] = new_value` to persist.
 
+#### Two persistence paths (important)
+There are two valid ways to persist state changes, used in different places:
+
+- Inside tools (preferred for tool-side writes): set `tool_context.actions.state_delta["key"] = value`. This is atomic within the tool execution and is how ADK expects tools to persist changes.
+- Outside tools (app code): fetch → modify → write back the entire state using `session_service.create_session(app_name, user_id, session_id, state=updated_state)`. With the in-memory session service, calling `create_session` again with the same `session_id` acts like an upsert and replaces the stored state for that session (it does not start a new conversation because the `session_id` is unchanged).
+
+Note on concurrency: the fetch-modify-write pattern can race if multiple writers act concurrently. Using `state_delta` inside a single tool run avoids that within the scope of that run.
+
 ### 3) Interaction History – What, Where, How
 We keep a running history of user queries and agent responses in `state["interaction_history"]` for transparency and debugging.
 
